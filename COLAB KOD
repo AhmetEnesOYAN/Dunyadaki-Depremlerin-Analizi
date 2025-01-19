@@ -1,0 +1,224 @@
+# Gerekli kütüphaneleri import etme
+import pandas as pd
+import matplotlib.pyplot as plt
+from google.colab import files
+
+# Dosya yükleme işlemini yapma
+uploaded = files.upload()
+
+# Yüklenen dosyayı okuma
+df = pd.read_csv('earthquake-dataset.csv')  # Dosya ismi doğru olduğundan emin olma
+
+# Veri setindeki sütun isimlerini gösterme
+print("Sütun İsimleri:")
+print(df.columns)  # Bu kod sütun isimlerini gösterecek
+
+# Verinin ilk 5 satırını gösterme
+print("Verinin İlk 5 Satırı:")
+print(df.head())
+
+# Eksik verileri kontrol etme
+print("\nEksik Veriler:")
+print(df.isnull().sum())  # Her sütundaki eksik verilerin sayısını gösterme
+
+# Eğer eksik veriler varsa, bunları silme
+df = df.dropna()  # Boş hücreleri silme
+
+# Temizlenmiş veri setinin ilk 5 satırını tekrar gösterme
+print("\nTemizlenmiş Verinin İlk 5 Satırı:")
+print(df.head())
+
+# Deprem büyüklüğünün dağılımını görselleştirme
+plt.figure(figsize=(10,6))
+plt.hist(df['mag'], bins=20, color='blue', alpha=0.7)
+plt.title('Deprem Büyüklüğünün Dağılımı')
+plt.xlabel('Büyüklük')
+plt.ylabel('Frekans')
+plt.grid(True)
+plt.show()
+
+# Derinlik ve büyüklük arasındaki ilişkiyi görselleştirme
+plt.figure(figsize=(10,6))
+plt.scatter(df['depth'], df['mag'], color='green', alpha=0.5)
+plt.title('Derinlik ve Deprem Büyüklüğü Arasındaki İlişki')
+plt.xlabel('Derinlik (km)')
+plt.ylabel('Büyüklük')
+plt.grid(True)
+plt.show()
+
+
+# Depremlerin zamanla nasıl değiştiğini görmek için 'time' sütununu datetime formatına çevirelim
+df['time'] = pd.to_datetime(df['time'], errors='coerce', utc=True)
+
+# Yıl bazında deprem sayısını hesaplayalım
+df['year'] = df['time'].dt.year
+yearly_earthquakes = df['year'].value_counts().sort_index()
+
+# Depremlerin yıllara göre dağılımını görselleştirelim
+plt.figure(figsize=(12,6))
+yearly_earthquakes.plot(kind='bar', color='orange', alpha=0.7)
+plt.title('Yıllara Göre Deprem Sayısı')
+plt.xlabel('Yıl')
+plt.ylabel('Deprem Sayısı')
+plt.grid(True)
+plt.show()
+
+
+# Coğrafi dağılımı görselleştirelim
+plt.figure(figsize=(10,6))
+plt.scatter(df['longitude'], df['latitude'], color='red', alpha=0.5, s=1)  # s=1 küçük nokta boyutu
+plt.title('Depremlerin Coğrafi Dağılımı')
+plt.xlabel('Boylam (Longitude)')
+plt.ylabel('Enlem (Latitude)')
+plt.grid(True)
+plt.show()
+
+
+# Adım 3: Büyüklük ve Derinlik Arasındaki İlişki
+plt.figure(figsize=(10,6))
+plt.scatter(df['depth'], df['mag'], color='blue', alpha=0.5)
+plt.title('Büyüklük ve Derinlik Arasındaki İlişki')
+plt.xlabel('Derinlik (km)')
+plt.ylabel('Büyüklük')
+plt.grid(True)
+plt.show()
+
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+
+# Adım 4: Makine Öğrenmesi Modeli
+# Özellikler ve etiketleri ayıralım
+X = df[['depth']]  # Deprem derinliğini kullanıyoruz
+y = df['mag']  # Deprem büyüklüğü tahmin edilecek etiket
+
+# Eğitim ve test verisi olarak bölme
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Modeli oluşturma ve eğitme
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Test verisi ile tahmin yapma
+y_pred = model.predict(X_test)
+
+# Modelin doğruluğunu değerlendirme
+mse = mean_squared_error(y_test, y_pred)
+print(f'Mean Squared Error (MSE): {mse:.2f}')
+
+
+from sklearn.ensemble import RandomForestRegressor
+
+# Adım 5: Random Forest Modeli ile İyileştirme
+# Özellikler ve etiketleri ayıralım
+X = df[['depth']]  # Deprem derinliğini kullanıyoruz
+y = df['mag']  # Deprem büyüklüğü tahmin edilecek etiket
+
+# Eğitim ve test verisi olarak bölme
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Random Forest modelini oluşturma ve eğitme
+rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
+rf_model.fit(X_train, y_train)
+
+# Test verisi ile tahmin yapma
+y_pred_rf = rf_model.predict(X_test)
+
+# Modelin doğruluğunu değerlendirme
+mse_rf = mean_squared_error(y_test, y_pred_rf)
+print(f'Random Forest Mean Squared Error (MSE): {mse_rf:.2f}')
+
+
+
+from sklearn.svm import SVR
+
+# Adım 5: Support Vector Machine (SVM) Modeli
+# Özellikler ve etiketleri ayıralım
+X = df[['depth']]  # Deprem derinliğini kullanıyoruz
+y = df['mag']  # Deprem büyüklüğü tahmin edilecek etiket
+
+# Eğitim ve test verisi olarak bölme
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# SVM modelini oluşturma ve eğitme
+svm_model = SVR(kernel='linear')  # 'linear' kernel kullanabiliriz
+svm_model.fit(X_train, y_train)
+
+# Test verisi ile tahmin yapma
+y_pred_svm = svm_model.predict(X_test)
+
+# Modelin doğruluğunu değerlendirme
+mse_svm = mean_squared_error(y_test, y_pred_svm)
+print(f'Support Vector Machine Mean Squared Error (MSE): {mse_svm:.2f}')
+
+
+from sklearn.ensemble import GradientBoostingRegressor
+
+# Adım 8: Gradient Boosting Modeli
+# Özellikler ve etiketleri ayıralım
+X = df[['depth']]  # Deprem derinliğini kullanıyoruz
+y = df['mag']  # Deprem büyüklüğü tahmin edilecek etiket
+
+# Eğitim ve test verisi olarak bölme
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Gradient Boosting modelini oluşturma ve eğitme
+gb_model = GradientBoostingRegressor(n_estimators=100, random_state=42)
+gb_model.fit(X_train, y_train)
+
+# Test verisi ile tahmin yapma
+y_pred_gb = gb_model.predict(X_test)
+
+# Modelin doğruluğunu değerlendirme
+mse_gb = mean_squared_error(y_test, y_pred_gb)
+print(f'Gradient Boosting Mean Squared Error (MSE): {mse_gb:.2f}')
+
+
+
+from sklearn.neighbors import KNeighborsRegressor
+
+# Adım 10: K-Nearest Neighbors Modeli
+# Özellikler ve etiketleri ayıralım
+X = df[['depth']]  # Deprem derinliğini kullanıyoruz
+y = df['mag']  # Deprem büyüklüğü tahmin edilecek etiket
+
+# Eğitim ve test verisi olarak bölme
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# KNN modelini oluşturma ve eğitme
+knn_model = KNeighborsRegressor(n_neighbors=5)  # n_neighbors=5 komşu kullanıyoruz
+knn_model.fit(X_train, y_train)
+
+# Test verisi ile tahmin yapma
+y_pred_knn = knn_model.predict(X_test)
+
+# Modelin doğruluğunu değerlendirme
+mse_knn = mean_squared_error(y_test, y_pred_knn)
+print(f'K-Nearest Neighbors Mean Squared Error (MSE): {mse_knn:.2f}')
+
+
+
+# Adım 6: Sonuçları Görselleştirme
+plt.figure(figsize=(12,6))
+
+# Gerçek değerler ve tahminler
+plt.scatter(X_test, y_test, color='blue', label='Gerçek Değerler')
+plt.scatter(X_test, y_pred, color='red', label='Linear Regression Tahminleri')
+plt.scatter(X_test, y_pred_rf, color='green', label='Random Forest Tahminleri')
+
+plt.title('Gerçek Değerler ve Tahminler')
+plt.xlabel('Derinlik (km)')
+plt.ylabel('Büyüklük')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+
+# Adım 11: Sonuçları Değerlendirme (Tüm Modeller)
+print(f"Linear Regression Mean Squared Error (MSE): {mse:.2f}")
+print(f"Random Forest Mean Squared Error (MSE): {mse_rf:.2f}")
+print(f"Support Vector Machine Mean Squared Error (MSE): {mse_svm:.2f}")
+print(f"Gradient Boosting Mean Squared Error (MSE): {mse_gb:.2f}")
+print(f"K-Nearest Neighbors Mean Squared Error (MSE): {mse_knn:.2f}")
+
