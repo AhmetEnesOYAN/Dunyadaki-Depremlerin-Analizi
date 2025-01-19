@@ -1,7 +1,7 @@
 # Dunyadaki-Depremlerin-Analizi
 İsim-Soyisim: Ahmet Enes OYAN Öğrenci No: 19332647046
 
-Dataset Link: https://www.kaggle.com/datasets/bakiturhan/earthquake-dataset Video Link: Sertifika Link: https://www.btkakademi.gov.tr/portal/certificate/validate?certificateId=MAZUN4l6DL
+Dataset Link: https://www.kaggle.com/datasets/bakiturhan/earthquake-dataset Video Link: https://youtu.be/wgQ2YSM-aV8 Sertifika Link: https://www.btkakademi.gov.tr/portal/certificate/validate?certificateId=MAZUN4l6DL
 
 Sonuç ve Değerlendirme: Bu projede, depremlerin büyüklüğünü tahmin etmek amacıyla çeşitli makine öğrenmesi algoritmaları kullanıldı: Linear Regression, Random Forest, SVM, Gradient Boosting, ve KNN. Veri kazıma (web scraping) ile veri toplama işlemi planlansa da, erişim sorunları nedeniyle Earthquake Dataset seçildi. Bu veri seti, depremlerin büyüklüğü, derinliği, coğrafi konumu ve zamanı gibi kritik özelliklere sahipti ve bu veriler kullanılarak büyüklük tahminleri yapıldı.
 
